@@ -1,0 +1,16 @@
+{
+  "name": "callous-chasm",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@sentry/node": "^7.69.0",
+    "astro": "^3.1.1"
+  }
+}
