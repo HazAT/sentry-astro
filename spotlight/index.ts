@@ -1,16 +1,9 @@
 import type { AstroConfig, AstroIntegration, AstroIntegrationLogger, AstroRenderer, ClientDirectiveConfig, InjectedRoute, InjectedScriptStage } from 'astro';
 import type { AddressInfo } from 'node:net';
 import type * as vite from 'vite';
-import * as Sentry from '@sentry/node';
+import { setupSidecar } from '@sentry/spotlight/sidecar'; 
 
-const DSN = 'https://1d8b45cffaf0d833276a6ad1ae7d726d@o447951.ingest.sentry.io/4505912155701248';
-// https://sentry-sdks.sentry.io/issues/?project=4505912155701248
-Sentry.init({
-    debug: true,
-    tracesSampleRate: 1.0,
-});
-
-const PKG_NAME = '@sentry/astro';
+const PKG_NAME = '@sentry/spotlight';
 
 const createPlugin = (options?: {}): AstroIntegration => {
 	let config: AstroConfig;
@@ -32,13 +25,7 @@ const createPlugin = (options?: {}): AstroIntegration => {
                 addClientDirective: (directive: ClientDirectiveConfig) => void;
                 logger: AstroIntegrationLogger;
             }) => {
-                options.injectScript('page', `
-                import * as Sentry from '@sentry/browser'; 
-                Sentry.init({
-                    debug: true, 
-                    tracesSampleRate: 1.0,
-                    transport: Sentry.makeSpotlightTransport
-                });`);
+                options.injectScript('page', `import * as Spotlight from '@sentry/spotlight'; Spotlight.init();`);
                 console.log('astro:config:setup ------------');
                 console.log(options);
               },
@@ -56,6 +43,7 @@ const createPlugin = (options?: {}): AstroIntegration => {
 
             'astro:server:start': async (options: { address: AddressInfo; logger: AstroIntegrationLogger; }) => {
                 console.log('astro:server:start ------------');
+                setupSidecar();
             },
 
             'astro:server:done': async (options: { logger: AstroIntegrationLogger; }) => {
@@ -65,45 +53,6 @@ const createPlugin = (options?: {}): AstroIntegration => {
             'astro:server:setup': async (options: { server: vite.ViteDevServer; logger: AstroIntegrationLogger; }) => {
                 console.log('astro:server:setup ------------');
                 console.log(options);
-                console.log(options.server.middlewares);
-                options.server.middlewares.use(Sentry.Handlers.requestHandler());
-                
-                options.server.middlewares.use(Sentry.Handlers.errorHandler());
-                let interval = null;
-                const hub = Sentry.getCurrentHub();
-                options.server.middlewares.use((req, _res, next) => {
-                    
-                    if (req.headers['sec-fetch-mode'] === 'navigate' && req.headers['sec-fetch-dest'] === 'document') {
-                        hub.configureScope((scope) => {
-                            const transaction = hub.startTransaction({
-                                op: 'http',
-                                name: req.originalUrl,
-                            });
-                            scope.setSpan(transaction);
-                        });
-                    }
-                    let transaction = hub.getScope().getTransaction();
-                    let child = null;
-                    if (transaction) {
-                        child = transaction.startChild({
-                            op: 'vite.devserver',
-                            name: req.originalUrl,
-                        });
-                    }
-                    
-                    next();
-                    if (child) {
-                        child.finish();
-                    }
-                    
-                    
-                    clearTimeout(interval);
-                    interval = setTimeout(() => {
-                        transaction.finish();
-                    }, 1000);
-                
-                });
-                
             },
 
             'astro:build:generated': async (options: { dir: URL; logger: AstroIntegrationLogger; }) => {
