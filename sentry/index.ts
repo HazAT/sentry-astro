@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/node';
 const DSN = 'https://1d8b45cffaf0d833276a6ad1ae7d726d@o447951.ingest.sentry.io/4505912155701248';
 // https://sentry-sdks.sentry.io/issues/?project=4505912155701248
 Sentry.init({
+    dsn: DSN,
     debug: true,
     tracesSampleRate: 1.0,
 });
@@ -66,43 +67,43 @@ const createPlugin = (options?: {}): AstroIntegration => {
                 console.log('astro:server:setup ------------');
                 console.log(options);
                 console.log(options.server.middlewares);
-                options.server.middlewares.use(Sentry.Handlers.requestHandler());
+                // options.server.middlewares.use(Sentry.Handlers.requestHandler());
                 
-                options.server.middlewares.use(Sentry.Handlers.errorHandler());
-                let interval = null;
-                const hub = Sentry.getCurrentHub();
-                options.server.middlewares.use((req, _res, next) => {
+                // options.server.middlewares.use(Sentry.Handlers.errorHandler());
+                // let interval = null;
+                // const hub = Sentry.getCurrentHub();
+                // options.server.middlewares.use((req, _res, next) => {
                     
-                    if (req.headers['sec-fetch-mode'] === 'navigate' && req.headers['sec-fetch-dest'] === 'document') {
-                        hub.configureScope((scope) => {
-                            const transaction = hub.startTransaction({
-                                op: 'http',
-                                name: req.originalUrl,
-                            });
-                            scope.setSpan(transaction);
-                        });
-                    }
-                    let transaction = hub.getScope().getTransaction();
-                    let child = null;
-                    if (transaction) {
-                        child = transaction.startChild({
-                            op: 'vite.devserver',
-                            name: req.originalUrl,
-                        });
-                    }
+                //     if (req.headers['sec-fetch-mode'] === 'navigate' && req.headers['sec-fetch-dest'] === 'document') {
+                //         hub.configureScope((scope) => {
+                //             const transaction = hub.startTransaction({
+                //                 op: 'http',
+                //                 name: req.originalUrl,
+                //             });
+                //             scope.setSpan(transaction);
+                //         });
+                //     }
+                //     let transaction = hub.getScope().getTransaction();
+                //     let child = null;
+                //     if (transaction) {
+                //         child = transaction.startChild({
+                //             op: 'vite.devserver',
+                //             name: req.originalUrl,
+                //         });
+                //     }
                     
-                    next();
-                    if (child) {
-                        child.finish();
-                    }
+                //     next();
+                //     if (child) {
+                //         child.finish();
+                //     }
                     
                     
-                    clearTimeout(interval);
-                    interval = setTimeout(() => {
-                        transaction.finish();
-                    }, 1000);
+                //     clearTimeout(interval);
+                //     interval = setTimeout(() => {
+                //         transaction.finish();
+                //     }, 1000);
                 
-                });
+                // });
                 
             },
 
