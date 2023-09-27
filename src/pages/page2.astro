@@ -1,12 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Content from "../components/Content.astro";
+import Carousel from "../components/Carousel.jsx";
 ---
 
 <Layout title="Page 2">
   <ul role="list" class="link-card-grid">
     <Content />
   </ul>
+  This is an Astro Island using React
+  <Carousel client:visible/>
 </Layout>
 
 <style>
