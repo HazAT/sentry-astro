@@ -1,15 +1,15 @@
 import type { AstroConfig, AstroIntegration, AstroIntegrationLogger, AstroRenderer, ClientDirectiveConfig, InjectedRoute, InjectedScriptStage } from 'astro';
 import type { AddressInfo } from 'node:net';
 import type * as vite from 'vite';
-import * as Sentry from '@sentry/node';
+// import * as Sentry from '@sentry/node';
 
 const DSN = 'https://1d8b45cffaf0d833276a6ad1ae7d726d@o447951.ingest.sentry.io/4505912155701248';
 // https://sentry-sdks.sentry.io/issues/?project=4505912155701248
-Sentry.init({
-    dsn: DSN,
-    debug: true,
-    tracesSampleRate: 1.0,
-});
+// Sentry.init({
+//     dsn: DSN,
+//     debug: true,
+//     tracesSampleRate: 1.0,
+// });
 
 const PKG_NAME = '@sentry/astro';
 
@@ -38,7 +38,6 @@ const createPlugin = (options?: {}): AstroIntegration => {
                 Sentry.init({
                     debug: true, 
                     tracesSampleRate: 1.0,
-                    transport: Sentry.makeSpotlightTransport
                 });`);
                 console.log('astro:config:setup ------------');
                 console.log(options);
