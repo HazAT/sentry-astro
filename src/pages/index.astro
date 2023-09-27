@@ -1,12 +1,16 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Content from "../components/Content.astro";
+import HustonError from "../components/HustonError.jsx";
+import Huston from "../components/Huston.jsx";
 ---
 
 <Layout title="Astro">
   <ul role="list" class="link-card-grid">
     <Content />
   </ul>
+  <HustonError width={80} height={62}/>
+  <Huston width={80} height={62}/>
 </Layout>
 
 <style>
