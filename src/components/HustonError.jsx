@@ -9,7 +9,7 @@ const SvgComponent = (props) => (
         fill="none"
         aria-hidden="true"
         preserveAspectRatio="none"
-        viewbox="0 0 175 131"
+        viewBox="0 0 175 131"
         style={{height: props.height, width: props.width}}
         >
         <path
