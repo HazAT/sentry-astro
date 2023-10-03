@@ -25,19 +25,23 @@ const createPlugin = (options?: {}): AstroIntegration => {
                 addClientDirective: (directive: ClientDirectiveConfig) => void;
                 logger: AstroIntegrationLogger;
             }) => {
-                options.injectScript('page', `import * as Spotlight from '@sentry/spotlight'; Spotlight.init();`);
-                console.log('astro:config:setup ------------');
-                console.log(options);
+                console.log('@sentry/spotlight astro:config:setup ------------');
+                console.log(options.config.integrations[0].hooks['astro:config:setup']);
+                if (options.command === 'dev') {
+                    options.injectScript('page', `import * as Spotlight from '@sentry/spotlight'; Spotlight.init();`);
+                }
+                
+                // console.log(options);
               },
 			'astro:config:done': async ({ config: cfg }) => {
                 console.log('astro:config:done ------------');
-				config = cfg;
-                console.log(config);
+				// config = cfg;
+                // console.log(config);
 			},
 
 			'astro:build:done': async ({ dir, routes, pages }) => {
                 console.log('astro:build:done ------------');
-				console.log(dir, routes, pages);
+				// console.log(dir, routes, pages);
 			},
 
 
@@ -52,12 +56,12 @@ const createPlugin = (options?: {}): AstroIntegration => {
 
             'astro:server:setup': async (options: { server: vite.ViteDevServer; logger: AstroIntegrationLogger; }) => {
                 console.log('astro:server:setup ------------');
-                console.log(options);
+                // console.log(options);
             },
 
             'astro:build:generated': async (options: { dir: URL; logger: AstroIntegrationLogger; }) => {
                 console.log('astro:build:generated ------------');
-                console.log(options);
+                // console.log(options);
             }
 
 		},

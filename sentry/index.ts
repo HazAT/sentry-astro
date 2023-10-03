@@ -21,7 +21,7 @@ Sentry.init({
       ? JSON.stringify(options.dsn)
       : "import.meta.env.PUBLIC_SENTRY_DSN"
   },
-  debug: ${options.debug ? "true" : "false"},
+  debug: ${options.debug ? true : false},
   environment: import.meta.env.PUBLIC_VERCEL_ENV,
   release: import.meta.env.PUBLIC_VERCEL_GIT_COMMIT_SHA,
   tracesSampleRate: 1.0,
@@ -39,11 +39,46 @@ Sentry.init({
       ? JSON.stringify(options.dsn)
       : "import.meta.env.PUBLIC_SENTRY_DSN"
   },
-  debug: ${options.debug ? "true" : "false"},
+  debug: ${options.debug ? true : false},
   environment: import.meta.env.PUBLIC_VERCEL_ENV,
   release: import.meta.env.PUBLIC_VERCEL_GIT_COMMIT_SHA,
   tracesSampleRate: 1.0,
 });
+// Sentry.getCurrentHub().getClient().setupIntegrations(true);
+Sentry.getCurrentHub().getClient().on("beforeEnvelope", (envelope) => {
+    console.log('I AM HERE');
+
+function serializeEnvelope(envelope) {
+    const [envHeaders, items] = envelope;
+  
+    // Initially we construct our envelope as a string and only convert to binary chunks if we encounter binary data
+    const parts = [];
+    parts.push(JSON.stringify(envHeaders));
+  
+    for (const item of items) {
+      const [itemHeaders, payload] = item;
+  
+      parts.push('\\n' + JSON.stringify(itemHeaders)+ '\\n');
+  
+      parts.push(JSON.stringify(payload));
+    }
+  
+    return parts.join("");
+  }
+    fetch('http://localhost:8969/stream', {
+      method: 'POST',
+      body: serializeEnvelope(envelope),
+      headers: {
+        'Content-Type': 'application/x-sentry-envelope',
+      },
+      mode: 'cors',
+    })
+      .catch(err => {
+        console.error(err);
+      });
+  });
+  console.log('xxx',Sentry.getCurrentHub().getClient());
+  Sentry.captureMessage('test');
 `;
 }
 const createPlugin = (options: SentryOptions = {}): AstroIntegration => {
@@ -51,6 +86,7 @@ const createPlugin = (options: SentryOptions = {}): AstroIntegration => {
     name: PKG_NAME,
     hooks: {
       "astro:config:setup": async ({ updateConfig, injectScript }) => {
+        console.log('@sentry/astro astro:config:setup ------------');
         const env = loadEnv("production", process.cwd());
         if (options.authToken ?? env.SENTRY_AUTH_TOKEN) {
           updateConfig({
