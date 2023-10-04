@@ -28,7 +28,14 @@ export default defineConfig({
   //     noExternal: [/.*sentry.*/],
   //   },
   // },
-  integrations: [sentryIntegration(), spotlightIntegration(), react()],
+  integrations: [
+    sentryIntegration({
+      // clientInitPath: "./sentry.client.config.ts",
+      // serverInitPath: "./sentry.server.config.ts",
+    }),
+    spotlightIntegration(),
+    react(),
+  ],
   // output: "server",
   // adapter: node({
   //   mode: "standalone",
